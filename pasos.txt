@@ -1,0 +1,7 @@
+# crear entorno virtual : python -m venv venv
+
+# activar entorno virtual : source venv/bin/activate
+
+# instalar dependencias : pip install -r requirements.txt
+
+# ejecutar servidor : uvicorn app.main:app --reload

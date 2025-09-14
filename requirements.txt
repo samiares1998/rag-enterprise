@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+langchain
+openai
+chromadb
+qdrant-client
+pinecone-client
+python-dotenv
+pydantic
+pytest
