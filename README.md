@@ -82,6 +82,7 @@ rag-enterprise/
 │   └── embeddings/    # Vectores listos para subir al VectorDB (opcional si no usas DB directa)
 │       └── ejemplo1.npy
 
+```
 
 Ingesta de documentos
 ✅ Objetivo
