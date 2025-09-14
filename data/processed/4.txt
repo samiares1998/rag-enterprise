@@ -1,0 +1,43 @@
+Table showing the Average Weight, Height, and Circumference
+of Head and Chest of Boys!!]
+
+At birth Weight 7% pounds.
+Height 20% inches.
+Chest 13% inches.
+Head 14 inches.
+One year Weight 21 pounds.
+Height 29 inches.
+Chest 18 inches.
+Head 18 inches.
+Two years Weight 26% pounds.
+Height 32% inches.
+Chest 19 inches.
+Head 19 inches.
+Three years Weight 31 pounds.
+Height 35 inches.
+Chest 20 inches.
+Head 19% inches.
+Four years Weight 35 pounds.
+Height 38 inches.
+Chest 20% inches.
+Head 19% inches.
+Five years Weight 41 pounds.
+Height 41% inches.
+Chest 21% inches.
+Head 20% inches.
+Six years Weight 45 pounds.
+Height 44 inches.
+Chest 23 inches.
+Seven years Weight 49% pounds.
+Height 46 inches.
+Chest 23% inches.
+Eight years Weight 54% pounds.
+Height 48 inches.
+Chest 24% inches.
+Nine years Weight 60 pounds.
+Height 50 inches.
+Chest 25 inches.
+Ten years Weight 66% pounds.
+Height 52 inches.
+
+Chest 26 inches.

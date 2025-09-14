@@ -60,3 +60,71 @@ rag-enterprise/
 │── .env                       # Variables de entorno
 │── README.md
 # rag-enterprise
+
+##  Estructura para la Data
+
+rag-enterprise/
+│── data/
+│   ├── raw/           # Documentos originales (PDF, Word, Excel, CSV, imágenes)
+│   │   ├── pdfs/
+│   │   ├── word/
+│   │   ├── excel/
+│   │   ├── csv/
+│   │   └── images/
+│   │
+│   ├── processed/     # Textos ya extraídos y normalizados
+│   │   ├── ejemplo1.txt
+│   │   ├── ejemplo2.txt
+│   │
+│   ├── chunks/        # Texto dividido en chunks (JSON, txt o parquet)
+│   │   └── ejemplo1_chunks.json
+│   │
+│   └── embeddings/    # Vectores listos para subir al VectorDB (opcional si no usas DB directa)
+│       └── ejemplo1.npy
+
+
+Ingesta de documentos
+✅ Objetivo
+
+Procesar distintos formatos de documentos en texto plano, normalizarlos y dividirlos en chunks para preparar embeddings.
+
+✅ Tareas completadas
+
+Soporte de múltiples formatos:
+
+PDFs → pymupdf o pypdf
+
+Word → python-docx
+
+Excel → openpyxl
+
+CSV → pandas
+
+Imágenes → OCR con pytesseract o easyocr
+
+Pipeline de procesamiento:
+
+Lee todos los archivos de data/raw/* automáticamente (sin especificar uno a uno).
+
+Extrae texto y lo guarda en data/processed/.
+
+Genera chunks con RecursiveCharacterTextSplitter y los guarda en data/chunks/.
+
+Evita reprocesar: si ya existen .txt y .json, los reutiliza.
+
+API REST con FastAPI:
+
+POST /api/v1/ingestion/ingest-all → procesa todos los documentos.
+
+POST /api/v1/ingestion/ingest-file → procesa un documento específico.
+
+Error handling unificado:
+
+Cada error responde con estructura estándar:
+
+{
+  "code": "PROCESSING_ERROR",
+  "error": "FileNotFoundError",
+  "reason": "No such file or directory"
+}
+
