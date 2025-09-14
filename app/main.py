@@ -1,10 +1,14 @@
 from fastapi import FastAPI, Request
 from app.api.v1 import ingestion_routes
+from app.api.v1 import rag_routes
 
 app = FastAPI(title="RAG Enterprise - Ingestion API")
 
 # Registrar endpoints
 app.include_router(ingestion_routes.router, prefix="/api/v1/ingestion")
+
+app.include_router(rag_routes.router, prefix="/api/v1/rag")
+
 
 # ⚡ Handler global para cualquier excepción
 @app.exception_handler(Exception)

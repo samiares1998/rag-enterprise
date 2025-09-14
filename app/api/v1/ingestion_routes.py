@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File
 import os
 import shutil
-from app.ingestion.pipeline import process_document, RAW_DATA_DIR
+from app.services.ingestion.pipeline import process_document, RAW_DATA_DIR
 
 router = APIRouter()
 

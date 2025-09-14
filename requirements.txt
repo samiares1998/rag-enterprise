@@ -15,3 +15,15 @@ pandas
 pytesseract
 easyocr
 Pillow
+# Core
+langchain-community
+langchain-chroma
+langchain-huggingface
+
+# Vector DB
+chromadb
+
+# Embeddings & Models
+sentence-transformers
+transformers
+torch
