@@ -83,46 +83,42 @@ rag-enterprise/
 │       └── ejemplo1.npy
 
 ```
+## 📥 Ingesta de documentos  
 
-Ingesta de documentos
-✅ Objetivo
+### 🎯 Objetivo  
+Procesar distintos formatos de documentos en **texto plano**, normalizarlos y dividirlos en **chunks** para preparar embeddings.  
 
-Procesar distintos formatos de documentos en texto plano, normalizarlos y dividirlos en chunks para preparar embeddings.
+---
 
-✅ Tareas completadas
+### ✅ Tareas completadas  
 
-Soporte de múltiples formatos:
+#### 📂 Soporte de múltiples formatos  
+- [x] 📄 **PDFs** → `pymupdf` o `pypdf`  
+- [x] 📝 **Word** → `python-docx`  
+- [x] 📊 **Excel** → `openpyxl`  
+- [x] 📑 **CSV** → `pandas`  
+- [x] 🖼️ **Imágenes** → OCR con `pytesseract` o `easyocr`  
 
-PDFs → pymupdf o pypdf
+---
 
-Word → python-docx
+#### ⚙️ Pipeline de procesamiento  
+- [x] 🔎 Lee todos los archivos en `data/raw/*` automáticamente (sin necesidad de especificar uno a uno).  
+- [x] ✍️ Extrae el texto y lo guarda en `data/processed/`.  
+- [x] ✂️ Genera **chunks** con `RecursiveCharacterTextSplitter` y los guarda en `data/chunks/`.  
+- [x] 🚫 Evita reprocesar → si ya existen `.txt` y `.json`, los reutiliza.  
 
-Excel → openpyxl
+---
 
-CSV → pandas
+#### 🌐 API REST con FastAPI  
+- `POST /api/v1/ingestion/ingest-all` → procesa **todos los documentos**.  
+- `POST /api/v1/ingestion/ingest-file` → procesa **un documento específico**.  
 
-Imágenes → OCR con pytesseract o easyocr
+---
 
-Pipeline de procesamiento:
+#### 🛡️ Error handling unificado  
+Todas las respuestas de error siguen un formato estándar:  
 
-Lee todos los archivos de data/raw/* automáticamente (sin especificar uno a uno).
-
-Extrae texto y lo guarda en data/processed/.
-
-Genera chunks con RecursiveCharacterTextSplitter y los guarda en data/chunks/.
-
-Evita reprocesar: si ya existen .txt y .json, los reutiliza.
-
-API REST con FastAPI:
-
-POST /api/v1/ingestion/ingest-all → procesa todos los documentos.
-
-POST /api/v1/ingestion/ingest-file → procesa un documento específico.
-
-Error handling unificado:
-
-Cada error responde con estructura estándar:
-
+```json
 {
   "code": "PROCESSING_ERROR",
   "error": "FileNotFoundError",
