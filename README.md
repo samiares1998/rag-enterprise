@@ -125,3 +125,9 @@ Todas las respuestas de error siguen un formato estándar:
   "reason": "No such file or directory"
 }
 
+#### Instalar Mongo local con docker 
+
+docker pull mongodb/mongodb-community-server
+
+docker run --name mongodb -d -p 27017:27017 mongodb/mongodb-community-server
+
