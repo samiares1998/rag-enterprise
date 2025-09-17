@@ -15,7 +15,7 @@ def ensure_dirs():
     Path(CHUNKS_DIR).mkdir(parents=True, exist_ok=True)
 
 
-def process_document(path: str):
+async def process_document(path: str):
     """Procesa un documento: si ya existe en processed/chunks, no lo repite"""
     ensure_dirs()
     try:
@@ -23,7 +23,6 @@ def process_document(path: str):
         filename, _ = os.path.splitext(os.path.basename(path))
         processed_path = os.path.join(PROCESSED_DIR, filename + ".json")
         chunks_path = os.path.join(CHUNKS_DIR, filename + "_chunks.json")
-        save_register(path, processed_path)
 
         # Si ya existe, lo reutiliza
         if os.path.exists(processed_path) and os.path.exists(chunks_path):
@@ -48,8 +47,10 @@ def process_document(path: str):
 
 
         index_chunks_from_file(chunks_path)
-
+        
+        await save_register(path, processed_path)
         return {"status": "processed", "file": path}
+
     except Exception as e:
         return {
             "code": "PROCESSING_ERROR",

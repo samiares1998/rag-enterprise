@@ -2,11 +2,12 @@ npm create vite@latest nombre-app
 
 npm install
 
-npm run dev
-
 npm install react-router-dom
 
 npm install -D tailwindcss postcss autoprefixer
+
+npm run dev
+
 
 
 

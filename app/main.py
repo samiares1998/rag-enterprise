@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request
 from app.api.v1 import ingestion_routes
 from app.api.v1 import rag_routes
+from fastapi.responses import JSONResponse
+
 
 app = FastAPI(title="RAG Enterprise - Ingestion API")
 
