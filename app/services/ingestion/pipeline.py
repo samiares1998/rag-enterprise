@@ -4,6 +4,8 @@ from pathlib import Path
 from app.services.ingestion.loaders import load_file
 from app.services.ingestion.chunker import chunk_text
 from app.services.vectorstore.chroma_store import index_chunks_from_file
+from app.services.ingestion.mongo_services import save_register
+
 RAW_DATA_DIR = "data/raw"
 PROCESSED_DIR = "data/processed"
 CHUNKS_DIR = "data/chunks"
@@ -21,6 +23,7 @@ def process_document(path: str):
         filename, _ = os.path.splitext(os.path.basename(path))
         processed_path = os.path.join(PROCESSED_DIR, filename + ".json")
         chunks_path = os.path.join(CHUNKS_DIR, filename + "_chunks.json")
+        save_register(path, processed_path)
 
         # Si ya existe, lo reutiliza
         if os.path.exists(processed_path) and os.path.exists(chunks_path):

@@ -2,9 +2,18 @@ from fastapi import APIRouter, UploadFile, File
 import os
 import shutil
 from app.services.ingestion.pipeline import process_document, RAW_DATA_DIR
+from fastapi.middleware.cors import CORSMiddleware
+from app.services.ingestion.mongo_services import *
 
 router = APIRouter()
-
+# Configurar CORS para que React Admin pueda consumir la API
+router.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # en producción mejor especificar tu dominio
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @router.post("/ingest-file")
 async def ingest_file(file: UploadFile = File(...)):
@@ -28,3 +37,9 @@ async def ingest_all():
             file_path = os.path.join(root, file)
             results.append(process_document(file_path))
     return {"documents": results}
+
+
+@router.get("/files")
+async def list_files():
+    return await list_files()
+
