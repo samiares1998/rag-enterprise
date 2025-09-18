@@ -6,9 +6,9 @@ from app.services.ingestion.chunker import chunk_text
 from app.services.vectorstore.chroma_store import index_chunks_from_file
 from app.services.ingestion.mongo_services import save_register
 
-RAW_DATA_DIR = "data/raw"
-PROCESSED_DIR = "data/processed"
-CHUNKS_DIR = "data/chunks"
+RAW_DATA_DIR = "front/rag-front/data/raw"
+PROCESSED_DIR = "front/rag-front/data/processed"
+CHUNKS_DIR = "front/rag-front/data/chunks"
 
 
 def ensure_dirs():

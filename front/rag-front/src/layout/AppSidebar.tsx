@@ -9,6 +9,7 @@ import {
   GridIcon,
   HorizontaLDots,
   ListIcon,
+  ChatIcon,
   PageIcon,
   PieChartIcon,
   PlugInIcon,
@@ -17,6 +18,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
+import { Table } from "../components/ui/table";
 
 type NavItem = {
   name: string;
@@ -31,11 +33,24 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/",
   },
- /* {
-    icon: <CalenderIcon />,
-    name: "Calendar",
+  {
+    icon: <ChatIcon />,
+    name: "Chat",
     path: "/calendar",
   },
+ {
+    icon: <ListIcon />,
+    name: "Documents",
+    path: "/documents",
+  },
+  {
+    icon: <BoxCubeIcon />,
+    name: "Data Bases",
+    path: "/calendar",
+  },
+  
+ 
+  /* 
   {
     icon: <UserCircleIcon />,
     name: "User Profile",
@@ -308,20 +323,16 @@ const AppSidebar: React.FC = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
+      <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold">HOLA.AI</h1> 
+            <img
+              src="/images/logo/logo-icon.svg"
+              alt="Logo"
+              width={32}
+              height={32}
+            />
+          </div>
+     
             </>
           ) : (
             <img
