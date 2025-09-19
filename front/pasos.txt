@@ -6,6 +6,16 @@ npm install react-router-dom
 
 npm install -D tailwindcss postcss autoprefixer
 
+npm create vite@latest admin-dashboard -- --template react
+cd admin-dashboard
+npm install
+npm install react-router-dom tailwindcss autoprefixer postcss
+npm install -D @types/react-router-dom
+
+nvm install 20
+
+nvm use 20
+
 npm run dev
 
 
