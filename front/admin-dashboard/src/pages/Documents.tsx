@@ -1,43 +1,70 @@
-import DocumentsTable, { type Document } from "../components/documents/DocumentsTable";
-
-const docs: Document[] = [
-  {
-    id: "68cad30af27def66ce73d44b",
-    filename: "CV_Sami_Yahir_Arevalo_Cambridge.pdf",
-    content_type: "local-file",
-    upload_date: "2025-09-17T15:26:02.096+00:00",
-    path: "data/raw/CV_Sami_Yahir_Arevalo_Cambridge.pdf",
-  },
-  {
-    id: "90cad30af27def66ce73d111",
-    filename: "financial_report_q1.pdf",
-    content_type: "local-file",
-    upload_date: "2025-08-01T10:15:22.000+00:00",
-    path: "data/raw/financial_report_q1.pdf",
-  },
-];
+import DocumentsTable from "../components/documents/DocumentsTable";
+import { useDocuments } from "../hooks/useDocuments";
+import type { Document,DocumentEdit } from "../types/Index";
+import type { AddNewDocument } from "../types/Index";
+import Swal from "sweetalert2";
 
 export default function Documents() {
-  const handleView = (doc: Document) => {
-    alert(`Viewing document: ${doc.filename}`);
-  };
+  const {
+    documents,
+    loading,
+    error,
+    deleteDocument,
+    updateDocument,
+    addDocument,
+    refresh,
+  } = useDocuments();
 
-  const handleEdit = (doc: Document) => {
-    alert(`Editing document: ${doc.filename}`);
-  };
+  // ✏️ Editar documento
+  const handleEdit = async (doc: DocumentEdit,id:string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to edit "${doc.filename}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, edit it!",
+      cancelButtonText: "Cancel",
+    });
 
-  const handleDelete = (doc: Document) => {
-    if (confirm(`Are you sure you want to delete ${doc.filename}?`)) {
-      alert(`Deleted: ${doc.filename}`);
+    if (result.isConfirmed) {
+      await updateDocument(id, doc);
+      Swal.fire("✅ Updated!", "The document has been updated.", "success");
     }
   };
 
+  // 🗑️ Eliminar documento
+  const handleDelete = async (doc: Document,path:string) => {
+    const result = await Swal.fire({
+      title: "Delete Document?",
+      text: `This will permanently delete "${doc.filename}".`,
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      await deleteDocument(doc._id,path);
+      Swal.fire("🗑️ Deleted!", "The document has been removed.", "success");
+    }
+  };
+
+  // ➕ Añadir documento
+  const handleAdd = async (newDoc: Omit<AddNewDocument, "_id">) => {
+    await addDocument(newDoc);
+    await refresh();
+    Swal.fire("🎉 Added!", "The new document was added successfully.", "success");
+  };
+
+  if (loading) return <p className="p-6">Loading...</p>;
+  if (error) return <p className="p-6 text-red-500">{error}</p>;
+
   return (
     <DocumentsTable
-      documents={docs}
-      onView={handleView}
+      documents={documents}
       onEdit={handleEdit}
       onDelete={handleDelete}
+      onAdd={handleAdd}
     />
   );
 }

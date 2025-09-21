@@ -13,9 +13,9 @@ export default function Modal({ isOpen, title, children, onClose }: ModalProps) 
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      {/* Background overlay */}
+      {/* Background overlay con blur */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-40"
+        className="absolute inset-0 bg-black/30 backdrop-blur-xs"
         onClick={onClose}
       />
 

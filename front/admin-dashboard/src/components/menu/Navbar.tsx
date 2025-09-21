@@ -6,7 +6,7 @@ const Navbar: React.FC = () => {
     <nav className="w-full bg-white shadow-md px-6 py-3 flex items-center justify-between">
       {/* Logo / Branding */}
       <div className="flex items-center space-x-2">
-        <span className="text-xl font-bold text-indigo-600">HORIZON</span>
+        <span className="text-xl font-bold text-indigo-600">NEURORAG.AI</span>
         <span className="text-gray-500 font-medium">FREE</span>
       </div>
 

@@ -1,57 +1,47 @@
+import { Eye, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Search, Eye, Pencil, Trash2, MoreHorizontal, Plus } from "lucide-react";
-import Modal from "../ui/Modal";
-
-export type Document = {
-  id: string;
-  filename: string;
-  content_type: string;
-  upload_date: string;
-  path: string;
-};
+import type { AddNewDocument, Document, DocumentEdit } from '../../types/Index';
+import AddDocument from "./AddDocument";
+import EditDocument from "./EditDocument";
+import ViewDocument from "./ViewDocument";
 
 type DocumentsTableProps = {
   documents: Document[];
-  onView?: (doc: Document) => void;
-  onEdit?: (doc: Document) => void;
-  onDelete?: (doc: Document) => void;
-  onAdd?: (doc: Omit<Document, "id">) => void;
+  onEdit?: (doc: DocumentEdit,id:string) => void;
+  onDelete?: (doc: Document,path:string) => void;
+  onAdd?: (doc: Omit<AddNewDocument, "_id">) => void;
+};
+
+const emptyDoc: AddNewDocument = {
+  comments: "",
+  archivo: {} as File, // archivo vacío inicial
 };
 
 export default function DocumentsTable({
   documents,
-  onView,
   onEdit,
   onDelete,
   onAdd,
 }: DocumentsTableProps) {
-  const [search, setSearch] = useState("");
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+
+  const [isViewOpen, setIsViewOpen] = useState(false);
+
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [newDoc, setNewDoc] = useState<Omit<Document, "id">>({
-    filename: "",
-    content_type: "",
-    upload_date: new Date().toISOString(),
-    path: "",
-  });
+  const [newDoc, setNewDoc] = useState<AddNewDocument>(emptyDoc);
+
+  const [search, setSearch] = useState("");
+
+ 
 
   const filteredDocs = documents.filter(
     (doc) =>
       doc.filename.toLowerCase().includes(search.toLowerCase()) ||
-      doc.id.toLowerCase().includes(search.toLowerCase())
+      doc._id.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAdd = () => {
-    if (newDoc.filename && newDoc.path) {
-      onAdd?.(newDoc);
-      setIsAddOpen(false);
-      setNewDoc({
-        filename: "",
-        content_type: "",
-        upload_date: new Date().toISOString(),
-        path: "",
-      });
-    }
-  };
 
   return (
     <div className="bg-white rounded-2xl shadow p-6">
@@ -82,26 +72,30 @@ export default function DocumentsTable({
             <tr className="text-gray-500 text-sm">
               <th className="p-2">ID</th>
               <th className="p-2">Filename</th>
-              <th className="p-2">Type</th>
+              <th className="p-2">Status</th>
               <th className="p-2">Upload Date</th>
-              <th className="p-2">Path</th>
+              <th className="p-2">Comments</th>
               <th className="p-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredDocs.map((doc) => (
               <tr
-                key={doc.id}
+                key={doc._id}
                 className="bg-gray-50 hover:bg-gray-100 rounded-lg"
               >
                 <td className="p-2 font-mono text-xs text-gray-700">
-                  {doc.id.slice(0, 8)}...
+                  {doc._id.slice(0, 8)}...
                 </td>
                 <td className="p-2 font-medium text-gray-900">
                   {doc.filename}
                 </td>
-                <td className="p-2 capitalize text-gray-600">
-                  {doc.content_type.replace("-", " ")}
+                <td
+                  className={`p-2 capitalize text-gray-600 rounded-lg ${
+                    doc.status === "processed" ? "text-green-800 font-medium" : ""
+                  }`}
+                >
+                  {doc.status}
                 </td>
                 <td className="p-2 text-gray-600">
                   {new Date(doc.upload_date).toLocaleDateString("en-US", {
@@ -110,24 +104,30 @@ export default function DocumentsTable({
                     day: "numeric",
                   })}
                 </td>
-                <td className="p-2 text-blue-600 underline cursor-pointer">
-                  {doc.path}
+                <td className="p-2 text-gray-600 cursor-pointer">
+                  {doc.comments}
                 </td>
                 <td className="p-2 flex items-center justify-center gap-3">
                   <button
-                    onClick={() => onView?.(doc)}
+                    onClick={() => {
+                      setSelectedDoc(doc);
+                      setIsViewOpen(true);
+                    }}
                     className="text-blue-500 hover:text-blue-700"
                   >
                     <Eye size={18} />
                   </button>
                   <button
-                    onClick={() => onEdit?.(doc)}
+                    onClick={() => {
+                      setSelectedDoc(doc);
+                      setIsEditOpen(true);
+                    }}
                     className="text-green-500 hover:text-green-700"
                   >
                     <Pencil size={18} />
                   </button>
                   <button
-                    onClick={() => onDelete?.(doc)}
+                    onClick={() => onDelete?.(doc,doc.path_original)}
                     className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 size={18} />
@@ -157,56 +157,53 @@ export default function DocumentsTable({
         </button>
       </div>
 
-      {/* Add Modal */}
-      <Modal
-        isOpen={isAddOpen}
-        title="Add New Document"
-        onClose={() => setIsAddOpen(false)}
-      >
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Filename"
-            value={newDoc.filename}
-            onChange={(e) =>
-              setNewDoc((prev) => ({ ...prev, filename: e.target.value }))
-            }
-            className="w-full border rounded p-2"
-          />
-          <input
-            type="text"
-            placeholder="Content Type"
-            value={newDoc.content_type}
-            onChange={(e) =>
-              setNewDoc((prev) => ({ ...prev, content_type: e.target.value }))
-            }
-            className="w-full border rounded p-2"
-          />
-          <input
-            type="text"
-            placeholder="Path"
-            value={newDoc.path}
-            onChange={(e) =>
-              setNewDoc((prev) => ({ ...prev, path: e.target.value }))
-            }
-            className="w-full border rounded p-2"
-          />
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={() => setIsAddOpen(false)}
-              className="px-4 py-2 rounded-lg border"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAdd}
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </Modal>
+
+    {isAddOpen && (
+            <AddDocument
+              isOpen={isAddOpen}
+              onClose={() => {
+                setIsAddOpen(false);
+                setNewDoc(emptyDoc); // 🔹 limpiamos al cerrar
+              }}
+              onSave={(doc) => {
+                onAdd?.(doc);
+                setIsAddOpen(false);
+                setNewDoc(emptyDoc); // 🔹 limpiamos después de guardar
+              }}
+            />
+          )}
+    
+
+      {selectedDoc && (
+        <EditDocument
+          documentRaw={selectedDoc}
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onEdit={(updatedDoc) => {
+            onEdit?.(updatedDoc,selectedDoc._id);
+            setIsEditOpen(false);
+          }}
+        />
+      )}
+
+      
+
+
+    {selectedDoc && (
+        <ViewDocument
+          documentRaw={selectedDoc}
+          isOpen={isViewOpen}
+          onClose={() => setIsViewOpen(false)}
+        />
+      )}
+
+
     </div>
+
+
+
+
+
+
   );
 }

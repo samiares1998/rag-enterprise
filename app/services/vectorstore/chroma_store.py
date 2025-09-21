@@ -74,3 +74,29 @@ def index_all_chunks(chunks_dir="data/chunks"):
         if file.endswith(".json"):
             path = os.path.join(chunks_dir, file)
             index_chunks_from_file(path)
+
+def delete_chunks_from_file(chunks_path: str):
+    """
+    Elimina de Chroma todos los embeddings asociados a un archivo de chunks.
+    """
+    if not os.path.exists(chunks_path):
+        logger.error(f"❌ No existe el archivo: {chunks_path}")
+        raise FileNotFoundError(f"No existe el archivo: {chunks_path}")
+
+    logger.info(f"🗑️ Eliminando chunks de {chunks_path}")
+
+    with open(chunks_path, "r", encoding="utf-8") as f:
+        chunks = json.load(f)
+
+    db = get_chroma()
+
+    # Construir los IDs de los chunks (igual que en el indexador)
+    chunk_ids = [f"{os.path.basename(chunks_path)}_{i}" for i in range(len(chunks))]
+
+    # Eliminar de Chroma
+    db.delete(ids=chunk_ids)
+    db.persist()
+
+    logger.info(f"✅ Eliminados {len(chunk_ids)} chunks de {chunks_path}")
+    return {"deleted": len(chunk_ids), "file": chunks_path}
+

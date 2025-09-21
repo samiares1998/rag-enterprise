@@ -27,7 +27,7 @@ export default function Sidebar() {
       } bg-white border-r border-gray-200 h-screen transition-all duration-300 flex flex-col`}
     >
       {/* Logo */}
-      <div className="p-6 text-xl font-bold text-blue-600">HORIZON</div>
+      <div className="p-6 text-xl font-bold text-blue-600">NEURORAG.AI</div>
 
       {/* Menu */}
       <nav className="flex-1 px-4 space-y-2">
