@@ -1,14 +1,14 @@
 import os
 import json
 import logging
-import chromadb
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain.docstore.document import Document
 from app.services.vectorstore.embeddings import emb_model
 
 # Persistencia local
 CHROMA_PATH = "data/embeddings"
 COLLECTION_NAME = "rag_docs"
+
 # Configuración básica del logger
 logging.basicConfig(
     level=logging.INFO,
@@ -16,6 +16,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]  # Se puede añadir FileHandler si quieres logs en archivo
 )
 logger = logging.getLogger(__name__)
+
 
 def get_chroma():
     """Devuelve la colección persistida de Chroma."""
@@ -44,23 +45,28 @@ def index_chunks_from_file(chunks_path: str):
 
     # Obtener IDs ya indexados
     existing = db.get(include=[])
-    existing_ids = set(existing["ids"]) if existing["ids"] else set()
+    existing_ids = set(existing["ids"]) if existing.get("ids") else set()
 
     # Crear documentos nuevos
     new_docs = []
     new_ids = []
     for i, chunk in enumerate(chunks):
+        print("DEBUG chunk:", type(chunk), chunk)
         chunk_id = f"{os.path.basename(chunks_path)}_{i}"
         if chunk_id not in existing_ids:
             new_docs.append(Document(
-                page_content=chunk,
-                metadata={"source": chunks_path, "chunk_index": i}
+                page_content=chunk["original_text"],   # 👈 ahora string
+                metadata={
+                    "source": chunks_path,
+                    "chunk_index": i,
+                    "parent_id": chunk.get("parent_id"),
+                    "token_count": chunk.get("chunk_token_count"),
+                }
             ))
             new_ids.append(chunk_id)
 
     if new_docs:
         db.add_documents(new_docs, ids=new_ids)
-        db.persist()
         logger.info(f"✅ Añadidos {len(new_docs)} chunks nuevos desde {chunks_path}")
     else:
         logger.warning(f"⚡ No había chunks nuevos en {chunks_path}")
@@ -74,6 +80,7 @@ def index_all_chunks(chunks_dir="data/chunks"):
         if file.endswith(".json"):
             path = os.path.join(chunks_dir, file)
             index_chunks_from_file(path)
+
 
 def delete_chunks_from_file(chunks_path: str):
     """
@@ -95,8 +102,6 @@ def delete_chunks_from_file(chunks_path: str):
 
     # Eliminar de Chroma
     db.delete(ids=chunk_ids)
-    db.persist()
 
     logger.info(f"✅ Eliminados {len(chunk_ids)} chunks de {chunks_path}")
     return {"deleted": len(chunk_ids), "file": chunks_path}
-

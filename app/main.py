@@ -1,16 +1,18 @@
 from fastapi import FastAPI, Request
-from app.api.v1 import ingestion_routes
+
 from app.api.v1 import rag_routes
+from app.api.v1 import new_ingestion_routes
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(title="RAG Enterprise - Ingestion API")
 
-# Registrar endpoints
-app.include_router(ingestion_routes.router, prefix="/api/v1/ingestion")
+
 
 app.include_router(rag_routes.router, prefix="/api/v1/rag")
+
+app.include_router(new_ingestion_routes.router, prefix="/api/v1/new_ingestion")
 
 app.add_middleware(
     CORSMiddleware,
