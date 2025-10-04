@@ -14,14 +14,14 @@ try:
     collection = db["files"]
 
     client.admin.command("ping")
-    print("✅ Conectado a MongoDB")
+    print(" Conectado a MongoDB")
 except Exception as e:
-    print(f"❌ Error al conectar a MongoDB: {e}")
+    print(f" Error al conectar a MongoDB: {e}")
 
 
 async def save_register(file, chunks_path, comments=None, status="processed"):
     try:
-        print("📥 Guardando metadata en Mongo...")
+        print("Guardando metadata en Mongo...")
 
         if hasattr(file, "filename"):  # Si viene como UploadFile
             filename = file.filename

@@ -1,6 +1,6 @@
-import Modal from "../ui/Modal";
+import Modal from "../../../components/ui/Modal";
 import { useState } from "react";
-import type { AddNewDocument } from "../../types/Index";
+import type { AddNewDocument } from "../types/Index";
 
 type AddDocumentProps = {
   isOpen: boolean;

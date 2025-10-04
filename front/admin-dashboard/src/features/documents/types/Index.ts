@@ -6,7 +6,7 @@ export interface Document {
     path_original: string;
     path_chunks?: string;
     comments?: string;
-    status?: string;
+    status: string;
   }
 
 
@@ -20,4 +20,13 @@ export interface Document {
   export interface AddNewDocument {
     comments: string;
     archivo: File;
+  }
+
+  export interface DocumentsResponse {
+    documents: Document[];
+    pagination: {
+      limit: number;
+      skip: number;
+      total: number;
+    };
   }

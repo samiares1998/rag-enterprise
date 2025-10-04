@@ -33,7 +33,7 @@ def index_chunks_from_file(chunks_path: str):
     sin duplicar lo ya existente.
     """
     if not os.path.exists(chunks_path):
-        logger.error(f"❌ No existe el archivo: {chunks_path}")
+        logger.error(f" No existe el archivo: {chunks_path}")
         raise FileNotFoundError(f"No existe el archivo: {chunks_path}")
 
     logger.info(f"📂 Cargando chunks desde {chunks_path}")
@@ -67,7 +67,7 @@ def index_chunks_from_file(chunks_path: str):
 
     if new_docs:
         db.add_documents(new_docs, ids=new_ids)
-        logger.info(f"✅ Añadidos {len(new_docs)} chunks nuevos desde {chunks_path}")
+        logger.info(f" Añadidos {len(new_docs)} chunks nuevos desde {chunks_path}")
     else:
         logger.warning(f"⚡ No había chunks nuevos en {chunks_path}")
 
@@ -87,7 +87,7 @@ def delete_chunks_from_file(chunks_path: str):
     Elimina de Chroma todos los embeddings asociados a un archivo de chunks.
     """
     if not os.path.exists(chunks_path):
-        logger.error(f"❌ No existe el archivo: {chunks_path}")
+        logger.error(f" No existe el archivo: {chunks_path}")
         raise FileNotFoundError(f"No existe el archivo: {chunks_path}")
 
     logger.info(f"🗑️ Eliminando chunks de {chunks_path}")
@@ -103,5 +103,5 @@ def delete_chunks_from_file(chunks_path: str):
     # Eliminar de Chroma
     db.delete(ids=chunk_ids)
 
-    logger.info(f"✅ Eliminados {len(chunk_ids)} chunks de {chunks_path}")
+    logger.info(f" Eliminados {len(chunk_ids)} chunks de {chunks_path}")
     return {"deleted": len(chunk_ids), "file": chunks_path}

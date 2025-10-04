@@ -22,7 +22,7 @@ custom_encoders = {
     datetime: lambda v: v.isoformat(),
 }
 
-router = APIRouter(prefix="/api/v1/ingestion", tags=["Ingestion"])
+router = APIRouter(prefix="", tags=["Ingestion"])
 
 
 

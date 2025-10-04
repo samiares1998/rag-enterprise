@@ -1,6 +1,6 @@
-import Modal from "../ui/Modal";
+import Modal from "../../../components/ui/Modal";
 import { useState } from "react";
-import type { Document,DocumentEdit } from "../../types/Index";
+import type { Document,DocumentEdit } from "../types/Index";
 
 type EditDocumentProps = {
   documentRaw: Document;

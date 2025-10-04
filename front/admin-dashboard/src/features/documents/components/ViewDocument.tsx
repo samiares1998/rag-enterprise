@@ -1,5 +1,5 @@
-import Modal from "../ui/ModalDocument";
-import type { Document } from "../../types/Index";
+import Modal from "./ModalDocument";
+import type { Document } from "../types/Index";
 
 type ViewDocumentProps = {
   documentRaw: Document;

@@ -3,7 +3,7 @@ from app.services.vectorstore.search import semantic_search
 from app.services.rag.rag_pipeline import rag_query
 from app.services.qwen.qwen import QwenService
 
-router = APIRouter(prefix="/api/v1/rag", tags=["RAG"])
+router = APIRouter(prefix="", tags=["RAG"])
 
 qwen = QwenService()
 
@@ -15,7 +15,7 @@ async def search(query: str = Query(..., description="Consulta semántica"), top
         return {"query": query, "results": results}
     except Exception as e:
         raise HTTPException(
-            status_code=500,
+            status_code=400,
             detail={"code": "SEARCH_ERROR", "error": str(type(e).__name__), "reason": str(e)}
         )
     
@@ -26,12 +26,18 @@ async def rag_endpoint(query: str, model: str = "mistral"):
         return result
     except Exception as e:
         raise HTTPException(
-            status_code=500,
+            status_code=400,
             detail={"code": "RAG_ERROR", "error": str(type(e).__name__), "reason": str(e)}
         )
     
 
 @router.get("/qwen")
 def ask(question: str):
-    response = qwen.generate_with_retriever(question)
-    return {"response": response}
+    try:
+        response = qwen.generate_with_retriever(question)
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail={"code": "QUEN_ERROR", "error": str(type(e).__name__), "reason": str(e)}
+        )
