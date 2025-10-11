@@ -10,12 +10,12 @@ from pydantic import BaseModel
 
 
 from app.services.ingestion.new_ingestion_way import document_processor
-from app.services.mongo.mongo_services import *
+from app.services.ingestion.file_services import *
 from datetime import datetime
 
 from  app.models.api_models import *
 
-
+from app.services.mongo.mongo_services import *
 
 custom_encoders = {
     ObjectId: str,
@@ -54,7 +54,7 @@ async def ingest_file(
             content={"error": "Internal server error"}
         )
 
-    
+#------------------------------------------------------------------------------------------ 
 
 @router.put("/files/{doc_id}")
 async def edit_file(doc_id: str, updates: UpdateDocument):
@@ -63,11 +63,14 @@ async def edit_file(doc_id: str, updates: UpdateDocument):
         raise HTTPException(status_code=404, detail="Document not found or update failed")
     return {"message": "✅ Document updated", "document": updated}
 
+#------------------------------------------------------------------------------------------ 
 
 @router.delete("/files/{doc_id}")
 async def remove_file(doc_id: str, path_original: str):
-    result = await delete_document(doc_id, path_original)
+    result = await delete_document_service(doc_id, path_original)
     return result
+
+#------------------------------------------------------------------------------------------ 
 
 
 @router.get("/")
@@ -108,6 +111,9 @@ async def get_documents(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
+    
+
+#---------------------------------------------------------------------------------------------------------------
 
 @router.get("/{doc_id}")
 async def get_document(doc_id: str):

@@ -51,7 +51,7 @@ def index_chunks_from_file(chunks_path: str):
     new_docs = []
     new_ids = []
     for i, chunk in enumerate(chunks):
-        print("DEBUG chunk:", type(chunk), chunk)
+       # print("DEBUG chunk:", type(chunk), chunk)
         chunk_id = f"{os.path.basename(chunks_path)}_{i}"
         if chunk_id not in existing_ids:
             new_docs.append(Document(

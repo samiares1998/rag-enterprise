@@ -1,74 +1,73 @@
-from langchain.chains import RetrievalQA  # type: ignore
-from app.services.vectorstore.retriever import get_retriever
-from langchain_huggingface import HuggingFacePipeline  # type: ignore
-from langchain.prompts import PromptTemplate
-from app.services.vectorstore.search import semantic_search
-import re
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+from app.services.vectorstore.retriever import *
 
-def build_rag_pipeline(model_name: str = "mistral", top_k: int = 3):
-    model = HuggingFacePipeline.from_model_id(
-        model_id="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-        task="text-generation",
-        model_kwargs={
-            "temperature": 0.4,
-            "max_length": 128,
-            "do_sample": True
-        }
-    )
-
-    QA_PROMPT = PromptTemplate(
-        input_variables=["context", "question"],
-        template="""Responde de forma breve y concisa a la siguiente pregunta.
-    Usa solo la información del contexto.
-    Si no sabes la respuesta, di 'No lo sé'.
-
-    Contexto:
-    {context}
-
-    Pregunta: {question}
-
-    Respuesta corta:"""
+class LlamaService:
+    def __init__(self, model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"):
+        #print(f"🔄 Cargando modelo {model_name} ...")
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.float16,   # usar media precisión en M3
+            device_map="auto"           # auto: usa Metal/GPU si está disponible
         )
 
-    retriever = get_retriever(top_k=top_k)   
+    def generate_text(self, prompt: str, max_new_tokens: int = 512) -> str:
+        # Preparar input
+        messages = [{"role": "user", "content": prompt}]
+        text = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        model_inputs = self.tokenizer([text], return_tensors="pt").to(self.model.device)
 
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=model,
-        retriever=retriever,
-        chain_type="stuff",
-        chain_type_kwargs={"prompt": QA_PROMPT},
-        return_source_documents=True
-    )
+        # Generar texto
+        generated_ids = self.model.generate(
+            **model_inputs,
+            max_new_tokens=max_new_tokens,
+            do_sample=True,
+            temperature=0.7,
+            top_p=0.9,
+        )
 
-    return qa_chain
+        output_ids = generated_ids[0][len(model_inputs.input_ids[0]):]
+        content = self.tokenizer.decode(output_ids, skip_special_tokens=True).strip()
 
+        return content
 
+    def generate_with_retriever(self, query: str, top_k: int = 3, max_new_tokens: int = 512, return_sources: bool = False):
+        # 1. Construir el retriever
+        retriever = get_retriever(top_k=top_k)
 
-def rag_query(question: str, model_name="mistral", top_k: int = 3):
-    qa = build_rag_pipeline(model_name=model_name, top_k=top_k)
-    response = qa.invoke(question)
+        # 2. Recuperar documentos
+        docs = retriever.get_relevant_documents(query)
 
-    raw_answer = response["result"]
+        #print(f" DOCS {docs} ...")
 
-    # 1️⃣ Extraer solo lo que venga después de "Respuesta corta:"
-    match = re.search(r"Respuesta corta:\s*(.*)", raw_answer, re.DOTALL)
-    if match:
-        cleaned_answer = match.group(1).strip()
-    else:
-        # fallback si no encuentra el patrón
-        cleaned_answer = raw_answer.strip()
+        # 3. Construir el contexto con los documentos recuperados
+        context = "\n\n".join([doc.page_content for doc in docs])
 
-    # 2️⃣ (opcional) quedarte solo con la primera frase
-    if "." in cleaned_answer:
-        cleaned_answer = cleaned_answer.split(".")[0] + "."
+        # 4. Prompt estilo "stuffing"
+        prompt = f"""
+        Usa el siguiente contexto para responder la pregunta.
+        Si no está en el contexto, di que no lo sabes.
 
-    return {
-        "query": question,
-        "answer": cleaned_answer,
-        "sources": [
-            {
-                "chunk": doc.page_content[:200],
-                "metadata": doc.metadata
-            } for doc in response["source_documents"]
-        ]
-    }
+        Contexto:
+        {context}
+
+        Pregunta:
+        {query}
+
+        Respuesta:
+        """
+
+        # 5. Generar respuesta con Qwen
+        answer = self.generate_text(prompt, max_new_tokens=max_new_tokens)
+
+        if return_sources:
+            return {
+                "answer": answer,
+                "sources": [doc.metadata for doc in docs]
+            }
+        return answer

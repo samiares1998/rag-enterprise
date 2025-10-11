@@ -5,6 +5,7 @@ import { useDocumentOperations } from "../features/documents/hooks/useDocumentOp
 //--------PAGES PRINCIPAL EN EL CUAL DEFINO LAS FUNCIONES Y CONSTANTES QUE SE COMPARTIRAN---------------
 
 export default function Documents() {
+  //------------------------------------------------------------------------------------------------
   const {
     documents,
     loading,

@@ -4,14 +4,14 @@ from app.services.vectorstore.retriever import *
 
 class QwenService:
     def __init__(self, model_name: str = "Qwen/Qwen2.5-3B-Instruct"):
-        print(f"🔄 Cargando modelo {model_name} ...")
+        #print(f"🔄 Cargando modelo {model_name} ...")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype=torch.float16,   # usar media precisión en M3
             device_map="auto"           # auto: usa Metal/GPU si está disponible
         )
-        print("✅ Modelo cargado correctamente.")
+        #print(" Modelo cargado correctamente.")
 
     def generate_text(self, prompt: str, max_new_tokens: int = 512) -> str:
         # Preparar input
@@ -45,7 +45,7 @@ class QwenService:
         # 2. Recuperar documentos
         docs = retriever.get_relevant_documents(query)
 
-        print(f"🔄 DOCS {docs} ...")
+        #print(f" DOCS {docs} ...")
 
         # 3. Construir el contexto con los documentos recuperados
         context = "\n\n".join([doc.page_content for doc in docs])

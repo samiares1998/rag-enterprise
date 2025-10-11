@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Query # type: ignore
 from app.services.vectorstore.search import semantic_search
-from app.services.rag.rag_pipeline import rag_query
+from app.services.rag.rag_pipeline import LlamaService
 from app.services.qwen.qwen import QwenService
 
 router = APIRouter(prefix="", tags=["RAG"])
 
 qwen = QwenService()
+llama=LlamaService()
 
 
 @router.get("/")
@@ -20,10 +21,10 @@ async def search(query: str = Query(..., description="Consulta semántica"), top
         )
     
 @router.post("/mini-llama")
-async def rag_endpoint(query: str, model: str = "mistral"):
+async def rag_endpoint(question: str):
     try:
-        result = rag_query(query, model_name=model, top_k=top_k)
-        return result
+        response = llama.generate_with_retriever(question)
+        return {"response": response}
     except Exception as e:
         raise HTTPException(
             status_code=400,
