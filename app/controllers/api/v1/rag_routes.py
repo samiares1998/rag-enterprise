@@ -20,7 +20,7 @@ async def search(query: str = Query(..., description="Consulta semántica"), top
             detail={"code": "SEARCH_ERROR", "error": str(type(e).__name__), "reason": str(e)}
         )
     
-@router.post("/mini-llama")
+@router.get("/mini-llama")
 async def rag_endpoint(question: str):
     try:
         response = llama.generate_with_retriever(question)

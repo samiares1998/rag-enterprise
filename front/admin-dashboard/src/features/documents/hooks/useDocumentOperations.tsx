@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import type { Document, DocumentEdit, AddNewDocument } from "../types/Index";
 import { useDocumentsApi } from "../services/documentService";
-import { useAlerts } from "./useAlerts";
+import { useAlerts } from "../../../hooks/useAlerts";
 
 export const useDocumentOperations = (refresh: () => void) => {
   const documentService = useDocumentsApi();

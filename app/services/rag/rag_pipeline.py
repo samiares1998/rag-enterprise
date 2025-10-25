@@ -36,22 +36,32 @@ class LlamaService:
 
         return content
 
-    def generate_with_retriever(self, query: str, top_k: int = 3, max_new_tokens: int = 512, return_sources: bool = False):
+    def generate_with_retriever(
+        self,
+        query: str,
+        top_k: int = 3,
+        max_new_tokens: int = 150,
+        return_sources: bool = False
+    ):
+        # 0. Manejar saludos o frases cortas
+        if query.strip().lower() in ["hola", "buenas", "hey", "hello"]:
+            return "¡Hola! 😊 ¿Cómo puedo ayudarte?"
+
         # 1. Construir el retriever
         retriever = get_retriever(top_k=top_k)
 
         # 2. Recuperar documentos
-        docs = retriever.get_relevant_documents(query)
+        docs = retriever.invoke(query)  # usar invoke en lugar de get_relevant_documents
 
-        #print(f" DOCS {docs} ...")
-
-        # 3. Construir el contexto con los documentos recuperados
+        # 3. Construir el contexto
         context = "\n\n".join([doc.page_content for doc in docs])
 
-        # 4. Prompt estilo "stuffing"
+        # 4. Prompt mejorado
         prompt = f"""
-        Usa el siguiente contexto para responder la pregunta.
-        Si no está en el contexto, di que no lo sabes.
+        Eres un asistente experto, claro y directo.
+        Usa únicamente la información del contexto para responder brevemente (máximo 3 oraciones).
+        Si la respuesta no está en el contexto, di:
+        "No tengo información suficiente para responder eso."
 
         Contexto:
         {context}
@@ -59,10 +69,10 @@ class LlamaService:
         Pregunta:
         {query}
 
-        Respuesta:
+        Respuesta (concisa y precisa):
         """
 
-        # 5. Generar respuesta con Qwen
+        # 5. Generar respuesta
         answer = self.generate_text(prompt, max_new_tokens=max_new_tokens)
 
         if return_sources:
@@ -70,4 +80,6 @@ class LlamaService:
                 "answer": answer,
                 "sources": [doc.metadata for doc in docs]
             }
+
         return answer
+

@@ -1,17 +1,42 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from app.services.vectorstore.retriever import *
+import os
 
 class QwenService:
+   # def __init__(self, model_name: str = "Qwen/Qwen2.5-3B-Instruct"):
     def __init__(self, model_name: str = "Qwen/Qwen2.5-3B-Instruct"):
-        #print(f"🔄 Cargando modelo {model_name} ...")
+        # --- Configurar variables para evitar errores de MPS (Metal en macOS) ---
+        os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
+        os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+
+        # --- Detectar el dispositivo disponible ---
+        if torch.backends.mps.is_available():
+            device = "mps"   # GPU de Apple (M1/M2/M3)
+            dtype = torch.float16
+            print("✅ Usando GPU Metal (MPS)")
+        elif torch.cuda.is_available():
+            device = "cuda"  # GPU Nvidia
+            dtype = torch.float16
+            print("✅ Usando GPU CUDA")
+        else:
+            device = "cpu"
+            dtype = torch.float32
+            print("⚙️  Usando CPU (sin GPU disponible)")
+
+        # --- Cargar modelo y tokenizer ---
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            torch_dtype=torch.float16,   # usar media precisión en M3
-            device_map="auto"           # auto: usa Metal/GPU si está disponible
+            torch_dtype=dtype,
+            device_map={"": device} if device != "cpu" else "cpu"
         )
-        #print(" Modelo cargado correctamente.")
+
+        # --- Mover modelo explícitamente si es CPU ---
+        if device == "cpu":
+            self.model.to("cpu")
+
+        self.device = device
 
     def generate_text(self, prompt: str, max_new_tokens: int = 512) -> str:
         # Preparar input
